@@ -3,10 +3,16 @@
  */
 var router = require('tiny-router'),
     fs = require('fs');
+var five = require("johnny-five");
+var Raspi = require("raspi-io");
 
 /*    tessel = require('tessel'),
     gpio = tessel.port['GPIO'];
    */
+
+var board = new five.Board({
+    io: new Raspi()
+});
 
 router
     .use('static', {path: './static'})
@@ -203,6 +209,11 @@ function start(){
 //Delay 8 seconds to give WiFi to start
 //To do: Look for wifi acquired event
 //    setTimeout(function(){
+    board.on("ready", function() {
+        var led = new five.Led("P1-13");
+        led.blink();
+    });
+
         router.listen(8080);
         console.log("listening on port 8080");
         //lights.green.write(1);
