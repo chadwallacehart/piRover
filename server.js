@@ -11,20 +11,22 @@ var board = new five.Board({
     io: new Raspi()
 });
 
-var led, rf, rb, lf, lb;
+var led, rf, rb, lf, lb, sound;
 
 board.on("ready", function() {
     led = new five.Led("P1-40");
-    rf = new five.Pin("P1-11"); //RF | PIN11 | GPIO17 | green wire
-    rb = new five.Pin("P1-13"); //RB | PIN13 | GPIO23 | red wire
-    lf = new five.Pin("P1-15"); //LF | PIN15 | GPIO22 | white wire
-    lb = new five.Pin("P1-16"); //LB | PIN16 | GPIO23 | yellow wire
+    rf = new five.Pin("P1-11");     //RF    | PIN11 | GPIO17 | green wire
+    rb = new five.Pin("P1-13");     //RB    | PIN13 | GPIO23 | red wire
+    lf = new five.Pin("P1-15");     //LF    | PIN15 | GPIO22 | white wire
+    lb = new five.Pin("P1-16");     //LB    | PIN16 | GPIO23 | yellow wire
+    sound = new five.Pin("P1-18");  //sound | PIN18 | GPIO24 | yellow wire
 
     //initialize all the pins to low
     rf.low();
     rb.low();
     lf.low();
     lb.low();
+    sound.high();
 
     //hello world
     led.blink();
@@ -43,7 +45,7 @@ router
     })
 
     .get('/ping', function(req, res){
-        res.send('alive');
+        res.send('pong');
         console.log('ping');
     })
 
@@ -56,6 +58,7 @@ router
                     '<li><a href="/backward">/backward</a> - move backward for 1 second</li>' +
                     '<li><a href="/spinright">/spinright</a> - spin to the right for 1 second</li>' +
                     '<li><a href="/spinleft">/spinleft</a> - spin to the left for 1 second</li>' +
+                    '<li><a href="/sound">/sound</a> - spin to the left for 1 second</li>' +
                     '<li>/rf/t - right forward for t seconds</li>' +
                     '<li>/rb/t - right backward for t seconds</li>' +
                     '<li>/lf/t - left forward for t seconds</li>' +
@@ -168,12 +171,28 @@ router
             }
             , t * 1000);
     })
+
+    .get('/sound/{t}', function(req, res){
+        var t = parseInt(req.body.t);
+        if (isNaN(t)) t = 1;
+        res.send("Toggling sound for " + t);
+        console.log("Toggling sound on for " + t + " seconds");
+        sound.low();
+
+        setTimeout(function(){
+                sound.high();
+
+            }
+            , t * 1000);
+    })
+
+
 ;
 
 function start(){
 
-        router.listen(8080);
-        console.log("listening on port 8080");
+        router.listen(80);
+        console.log("listening on port 80");
 }
 
 start();

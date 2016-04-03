@@ -5,9 +5,9 @@
 /*  Global vars */
 
 //The Tessel's URL
-var tesselUrl = "http://192.168.10.120:8080/";
+var roverUrl = "http://192.168.100.31/";
 //all valid commands
-var commands = ['forward', 'backward', 'spinright', 'spinleft', 'f', 'b', 'r','l', 'rf', 'rb', 'lf', 'lb'];
+var commands = ['forward', 'backward', 'spinright', 'spinleft', 'f', 'b', 'r','l', 'rf', 'rb', 'lf', 'lb', 's', 'sound'];
 
 $(document).ready(function(){
 
@@ -79,6 +79,8 @@ $(document).ready(function(){
                 return "spinright";
             case 'l':
                 return "spinleft";
+            case 's':
+                return "sound";
             default:
                 return command;
         }
@@ -102,7 +104,7 @@ $(document).ready(function(){
         }
 
         var urls = [];
-        for (x=0; x<lines.length; x++){
+        for (var x=0; x<lines.length; x++){
             var input = lines[x].split(/\W/);
             var command = normalize(input[0]);
 
@@ -114,10 +116,10 @@ $(document).ready(function(){
             if (time == 0 ||  isNaN(time)) time = 1; //default 1 second
 
             if (time>0) {
-                urls[x] = tesselUrl + command + '/' + time;
+                urls[x] = roverUrl + command + '/' + time;
             }
             else
-                urls[x] = tesselUrl + command;
+                urls[x] = roverUrl + command;
         }
 
         var count = 0;  //keep track of the # of commands we are running
@@ -150,11 +152,11 @@ $(document).ready(function(){
     function ping(healthCheck) {
         setTimeout(function () {
             $.ajax({
-                url: tesselUrl + 'ping',
+                url: roverUrl + 'ping',
                 timeout: 3000 //3 second timeout
             })
                 .done(function (data, status) {
-                    if (data == "alive" && status == "OK") {
+                    if (data == "pong" && status == "OK") {
                         console.log(data + " " + status);
                         runBtn.disabled = false;
                         //ToDo: Not sure why these are giving me errors when I use runBtn
