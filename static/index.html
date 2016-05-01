@@ -4,9 +4,9 @@
     <title>Raspberry Pi Rover Controller</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 </head>
 <body>
 
@@ -31,7 +31,7 @@
                                 <li>b | backward [#]    -- move backward for # sec</li>
                                 <li>r | spinright [#]   -- spin right for # sec</li>
                                 <li>l | or spinleft [#] -- spin left for # sec</li>
-                                <li>s | or sound [#] -- play a sournd for # sec</li>
+                                <li>s | or sound [#] -- play a sound for # sec</li>
                             </ul>
                         </div>
                         <div class="col-sm-4 small">
@@ -76,9 +76,18 @@
             <button type="button" class="btn btn-lg btn-block btn-success" id="run">Run</button>
         </div>
     </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <video id="remote-stream" autoplay="autoplay" style="margin: 0 auto"></video>
+        </div>
+    </div>
 </div>
 
 <script src="controller.js"></script>
-
+<script src="webrtc.js">
+    $(document).ready(function(){
+        startWebrtc();
+    })
+</script>
 </body>
 </html>
