@@ -7,6 +7,15 @@
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+
+    <style>
+        video {
+            margin-top: 20px;
+            margin-left: auto;
+            margin-right: auto;
+            display: block
+        }
+    </style>
 </head>
 <body>
 
@@ -78,16 +87,12 @@
     </div>
     <div class="row">
         <div class="col-sm-12">
-            <video id="remote-stream" autoplay="autoplay" style="margin: 0 auto"></video>
+            <video id="remote-video" autoplay="autoplay" style="align-content: center"></video>
         </div>
     </div>
 </div>
 
 <script src="controller.js"></script>
-<script src="webrtc.js">
-    $(document).ready(function(){
-        startWebrtc();
-    })
-</script>
+<script src="webrtc.js"></script>
 </body>
 </html>
