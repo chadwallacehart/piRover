@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    <script src="socket.io.js"></script>
 
     <style>
         video {
@@ -55,7 +56,7 @@
                             <ul>
                             <li>Time intervals in seconds</li>
                             <li>Omit the time will default to 1 second</li>
-                            <li>Maximum of 5 seconds allowed</li>
+                            <li>Maximum of 10 seconds allowed</li>
                             </ul>
                         </div>
                     </div>
@@ -91,7 +92,9 @@
         </div>
     </div>
 </div>
-
+<script>
+    var socket = io();
+</script>
 <script src="controller.js"></script>
 <script src="webrtc.js"></script>
 </body>

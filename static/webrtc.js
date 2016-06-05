@@ -206,3 +206,7 @@ window.onbeforeunload = function() {
         stop();
     }
 };
+
+$(document).ready(function(){
+    startWebrtc();
+});

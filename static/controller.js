@@ -4,10 +4,10 @@
 
 /*  Global vars */
 
-//The Tessel's URL
-var roverUrl = "http://192.168.100.31/";
+//The Rover's URL
+var roverUrl = "//192.168.100.31/";
 //all valid commands
-var commands = ['forward', 'backward', 'spinright', 'spinleft', 'f', 'b', 'r','l', 'rf', 'rb', 'lf', 'lb', 's', 'sound'];
+var commands = ['forward', 'backward', 'spinright', 'spinleft', 'f', 'b', 'r','l', 'rf', 'rb', 'lf', 'lb', 's', 'sound', 'd', 'disc'];
 
 $(document).ready(function(){
 
@@ -49,8 +49,8 @@ $(document).ready(function(){
                 output += "ERROR - bad time information\n";
                 syntaxErrors++;
             }
-            //limit the timer to 5 seconds
-            else if (time>5){
+            //limit the timer to 10 seconds
+            else if (time>10){
                 output += "ERROR - time too long\n";
                 syntaxErrors++;
             }
@@ -81,6 +81,8 @@ $(document).ready(function(){
                 return "spinleft";
             case 's':
                 return "sound";
+            case 'd':
+                return "disc";
             default:
                 return command;
         }
