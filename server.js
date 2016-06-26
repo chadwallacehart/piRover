@@ -47,18 +47,8 @@ router
 app.use(express.static(__dirname + '/static'))
 
 
+//REST Commands
 app
-    //ToDo: See why this isn't working yet index.html still loads
-/*    .get('/', function(req, res){
-        res.send('./static/index.html');
-        console.log('home page');
-    })
-
-   .get('/webrtc', function(req, res){
-        res.send('./static/webrtc.html');
-        console.log('webrtc page');
-    })*/
-
     .get('/ping', function(req, res){
         res.send('pong');
         console.log('ping');
@@ -216,20 +206,17 @@ app
 ;
 
 
-
+//Websocket commands
 io.on('connection', function (socket) {
-    console.log("socket connected");
-    socket.emit('news', { hello: 'world' });
-    socket.on('my other event', function (data) {
-        console.log(data);
+
+    socket.on('command', function(data){
+        socket.emit("ping", {ping : 'pong'})
     });
 });
 
+//ToDo: setup environment vars
+var port = process.env.PORT || 2368;
 
-function start(){
-
-        app.listen(2368);
-        console.log("listening on port 2368");
-}
-
-start();
+server.listen(port, function () {
+    console.log('Server listening at port %d', port);
+});

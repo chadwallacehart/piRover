@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <title>Socket IO test</title>
-    <!--script src="//192.168.100.31/socket.io/socket.io.js"></script-->
-    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <script src="//192.168.100.31/socket.io/socket.io.js"></script>
+    <!--script src="https://cdn.socket.io/socket.io-1.4.5.js"></script-->
 </head>
 <body>
 <button id="send" onclick="test()">Test</button>
 <script>
     var socket = io.connect('//' + window.location.host);
-    socket.on('news', function (data) {
+
+    socket.on('ping', function (data) {
         console.log(data);
-        socket.emit('my other event', { my: 'data' });
     });
+
 
     function test(){
         console.log("click");
-        socket.emit('data', {my: 'data'});
+        socket.emit('command', {my: 'data'});
     }
 </script>
 </body>

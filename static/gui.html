@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Raspberry Pi Rover Controller</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    <script src="socket.io.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="page-header">
+        <h1>Raspberry Pi Rover Controller</h1>
+        <p>Use the command line interface below to program the rover</p>
+    </div>
+    <div class="row">
+        <div class="col-md-2 col-lg-2">
+            <h2>Commands</h2>
+            <button id="btn_forward" class="btn btn-lg btn-info">Forward</button>
+            <button id="btn_backward" class="btn btn-lg btn-info">Backward</button>
+            <button id="btn_turnright" class="btn btn-lg btn-info"Turn Right</button>
+            <button id="btn_turnleft" class="btn btn-lg btn-info">Turn Left</button>
+            <button id="btn_sound" class="btn btn-lg btn-info">Play Sound</button>
+            <button id="btn_disc" class="btn btn-lg btn-info">Fire disc</button>
+            <button id="btn_sub1" class="btn btn-lg btn-info" disabled>Subroutine 1</button>
+            <button id="btn_sub2" class="btn btn-lg btn-info" disabled>Subroutine 2</button>
+        </div>
+        <div class="col-md-5 col-lg-3">
+            <table>
+                <tr><td>1</td><td id="cmd1"></td> </tr>
+                <tr><td>2</td><td id="cmd2"></td></tr>
+                <tr><td>3</td><td id="cmd3"></td></tr>
+                <tr><td>4</td><td id="cmd4"></td></tr>
+                <tr><td>5</td><td id="cmd5"></td></tr>
+            </table>
+            <h3>Subroutine 1</h3>
+            <h3>Subrouting 2</h3>
+            <button id="btn_save" class="btn btn-lg btn-success" disabled>Save</button>
+            <button id="btn_start" class="btn btn-lg btn-success" disabled>Start</button>
+            <button id="btn_stop" class="btn btn-lg brn-warning" hidden="hidden">Stop</button>
+        </div>
+        <div class="col-md-6 col-lg-7">
+            <video id="remote-video" autoplay="autoplay" style="align-content: center"></video>
+        </div>
+
+    </div>
+</div>
+<script>
+    var socket = io();
+</script>
+<script src="controller.js"></script>
+<script src="webrtc.js"></script>
+</body>
+</html>
