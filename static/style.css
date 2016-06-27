@@ -5,3 +5,7 @@ video {
     margin-right: auto;
     display: block
 }
+
+.btn-link{
+    color: red;
+}
