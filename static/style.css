@@ -8,4 +8,76 @@ video {
 
 .btn-link{
     color: red;
+    /*font-size: x-large;*/
 }
+
+td{
+    font-size: large;
+    /*vertical-align: bottom;*/
+}
+
+.cmdTime {
+    width: 50px;
+}
+
+
+/*source: http://codepen.io/koobitor/pen/rjyon *
+.numpad {
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    bottom: 0;
+    width: 160px;
+}
+
+.numpad li {
+    font-size: 16px;
+    float: left;
+    list-style: none;
+    text-align: center;
+    height: 40px;
+    padding-top: 10px;
+    width: 33.33%;
+    -webkit-font-smoothing: antialiased;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+    border: grey;
+}
+*/
+
+.numpad {
+    margin: 0;
+    padding: 5px;
+    position: absolute;
+    bottom: 0;
+    width: 120px;
+    height: 120px;
+}
+
+.numpad button {
+    font-size: 16px;
+    float: left;
+    text-align: center;
+    /*padding-top: 10px;*/
+    height: 33.33%;
+    width: 33.33%;
+    -webkit-font-smoothing: antialiased;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.popover{
+    width: 120px;
+    height: 120px;
+    align-content: center;
+}
+

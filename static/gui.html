@@ -98,64 +98,24 @@
 <!--script src="webrtc.js"></script-->
 <script>
     var cmdCnt = 0;
-
-/*    var numPadHtmlold = '\
-            <ul class="numpad"> \
-            <li class="btn btn-md" rel="1">1</li> \
-            <li class="btn btn-md" rel="2">2</li> \
-            <li class="btn btn-md" rel="3">3</li> \
-            <li class="btn btn-md" rel="4">4</li> \
-            <li class="btn btn-md" rel="5">5</li> \
-            <li class="btn btn-md" rel="6">6</li> \
-            <li class="btn btn-md" rel="7">7</li> \
-            <li class="btn btn-md" rel="8">8</li> \
-            <li class="btn btn-md" rel="9">9</li> \
-                </ul>';
-*/
-    var numPadHtml = '<div class="numpad">\
-                    <button class="numPadBtn">1</button><button class="numPadBtn">2</button><button class="numPadBtn">3</button><br> \
-                    <button class="numPadBtn">4</button><button class="numPadBtn">5</button><button class="numPadBtn">6</button><br> \
-                    <button class="numPadBtn">7</button><button class="numPadBtn">8</button><button class="numPadBtn">9</button><br></div>';
-
-
     $(document).ready(function () {
 
         $('.command').click(function () {
             cmdCnt++;
+            var btnId = 'tBtn'+ cmdCnt;
             var rowText =
                     '<tr>' +
                     '<td>' + cmdCnt + '</td>' +
                     '<td>' + $(this)[0].innerText + '</td>' +
-                    '<td><button id="tBtn'+ cmdCnt + '" rel="popover" class="btn cmdTimer" data-toggle="popover">1</button><td>' +
+                    //'<td><button id=' + btnId + 'rel="popover" class="btn cmdTimer">1</button><td>' +
+                    '<td><input type="text" class="cmdTime" value="1"/></td>' +
                     '<td><a class="btn btn-link pull-right"><i class="fa fa-times-circle" aria-hidden="true"></i></a></td>' +
                     '</tr>';
             $('#mainPrg').append(rowText);
-            $('[data-toggle=popover]').popover({
-                content: numPadHtml,
-                html: true
-            }).click(function () {
-                $(this).popover('show');
-            });
 
         });
     });
-/*
-    $('.numPadBtn').click(function(){
-        console.log('numpad click');
-    });*/
 
-    var currentCmd;
-
-    $(document).on('click', '.cmdTimer', function(){
-        console.log($(this)[0].id);
-        currentCmd = $(this)[0].id;
-    });
-
-    $(document).on('click', '.numPadBtn', function(){
-        console.log($(this));
-        $('[data-toggle=popover]').popover('hide');
-        $('#' + currentCmd)[0].innerHTML = $(this)[0].innerHTML;
-    });
 
 </script>
 </body>
