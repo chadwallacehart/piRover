@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Websocket interface tester</title>
+    <script src="//192.168.100.31/socket.io/socket.io.js"></script>
+    <!--script src="https://cdn.socket.io/socket.io-1.4.5.js"></script-->
+</head>
+<body>
+<h3>Single Command Input</h3>
+<textarea id="oneCommand" name="message" rows="1" cols="50">{"sound": "R2D2"}</textarea>
+<br>
+<button onclick="testOne()">Submit</button>
+<h3>Multiple Command Input</h3>
+<textarea id="multiCommand" name="message" rows="10" cols="50">[{"sound": "R2D2"}, {"sound": "Laser_Ma"}]</textarea>
+<br>
+<button onclick="testMulti()">Submit</button>
+
+<h3>Responses</h3>
+<p id="responses"></p>
+<script>
+
+    var responses = document.querySelector("#responses");
+    var socket = io.connect('//' + window.location.host);
+
+    socket.on('init', function (data) {
+        responses.innerHTML += '<strong>init:</strong> ' + JSON.stringify(data) + '<br>';
+        console.log(data);
+    });
+
+    socket.on('error', function (data) {
+        responses.innerHTML += '<strong>error:</strong> ' + JSON.stringify(data) + '<br>';
+        console.log(data);
+    });
+
+    socket.on("*", function (data) {
+        responses.innerHTML += '<strong>unknown:</strong> ' + JSON.stringify(data) + '<br>';
+        console.log(data);
+    });
+
+    function testOne() {
+        var commands = JSON.parse(document.querySelector("#oneCommand").value);
+        console.log(commands);
+        socket.emit('command', commands);
+    }
+
+    function testMulti() {
+        var commands = JSON.parse(document.querySelector("#multiCommand").value);
+        console.log(commands);
+        socket.emit('commands', commands);
+    }
+</script>
+</body>
+</html>

@@ -39,34 +39,14 @@
             <button id="btn_sub2" class="btn btn-lg btn-block command" disabled>Subroutine 2 <i
                     class="fa fa-terminal pull-right" aria-hidden="true"></i></button>
         </div>
-        <div class="col-md-5 col-lg-3">
+        <div class="col-md-6 col-lg-4">
             <h2>Program</h2>
-            <table id="mainPrg" class="table table-striped">
-                <!--
-                <tr>
-                    <td>1</td>
-                    <td id="cmd1"><span>some command</span>
-                        <button class="btn btn-lg btn-link pull-right"><i class="fa fa-times-circle"
-                                                                          aria-hidden="true"></i></button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td id="cmd2"></td>
-                </tr>
-                <tr>
-                    <td>3</td>
-                    <td id="cmd3"></td>
-                </tr>
-                <tr>
-                    <td>4</td>
-                    <td id="cmd4"></td>
-                </tr>
-                <tr>
-                    <td>5</td>
-                    <td id="cmd5"></td>
-                </tr> -->
-            </table>
+
+            <div id="mainPrg">
+                <ol id="mainPrgList" class="list-group"></ol>
+            </div>
+
+
             <h3 data-toggle="collapse" data-target="#subr1_div">Subroutine 1</h3>
 
             <div id="subr1_div" class="collapse">
@@ -83,9 +63,9 @@
             </div>
             <button id="btn_save" class="btn btn-lg btn-success" disabled>Save</button>
             <button id="btn_start" class="btn btn-lg btn-success" disabled>Start</button>
-            <button id="btn_stop" class="btn btn-lg brn-warning" hidden="hidden">Stop</button>
+            <button id="btn_stop" class="btn btn-lg brn-warning hidden">Stop</button>
         </div>
-        <div class="col-md-6 col-lg-7">
+        <div class="col-md-4 col-lg-6">
             <h2>Video Feed</h2>
             <video id="remote-video" autoplay="autoplay" style="align-content: center"></video>
         </div>
@@ -93,15 +73,26 @@
 </div>
 <script>
     var socket = io();
+    socket.on('init', function (data) {
+        console.log(data);
+    });
 </script>
 <script src="controller.js"></script>
-<!--script src="webrtc.js"></script-->
+<!-- script src="webrtc.js"></script-->
 <script>
-    var cmdCnt = 0;
+
+    //ToDo: have the pi send the list of available sounds
+    var sounds = '<option>Sound 1</option><option>Sound 2</option><option>Sound 3</option><option>Sound 4</option>';
+
     $(document).ready(function () {
 
+        $('#mainPrg').on('click','.del', function(){
+            $(this).parent().remove();
+        });
+
+
         $('.command').click(function () {
-            cmdCnt++;
+/*            cmdCnt++;
             var btnId = 'tBtn'+ cmdCnt;
             var rowText =
                     '<tr>' +
@@ -111,9 +102,42 @@
                     '<td><input type="text" class="cmdTime" value="1"/></td>' +
                     '<td><a class="btn btn-link pull-right"><i class="fa fa-times-circle" aria-hidden="true"></i></a></td>' +
                     '</tr>';
-            $('#mainPrg').append(rowText);
+            $('#mainPrg').append(rowText);*/
+
+            var command = $(this)[0].innerText;
+            var row = '<li class="cmdRow list-group-item">';
+
+
+            switch(command){
+                case 'Forward':
+                case 'Backward':
+                case 'Turn Right':
+                case 'Turn Left':
+                    row += command;
+                    row += '<input type="text" class="cmdTime" value="1"/>';
+                    break;
+                case 'Play Sound':
+                    row += '<form role="form" novalidate="novalidate" class="form-inline">';
+                    row += '<span>Play </span>';
+                    row += '<div class="form-group"><select class="form-control">' + sounds + '</select>';
+                    row += '<input type="text" class="cmdTime" value="1"/>';
+                    row += '</button class="btn btn-sm>">background</button>';
+                    row += '</form></div>';
+                    break;
+                default:
+                    console.log('command error');
+            }
+
+
+            row +=
+                    '<span class="pull-right del"><a><i class="fa fa-times-circle"></i></a></span>' +
+                    '</li>';
+            $('#mainPrgList').append(row);
 
         });
+
+
+
     });
 
 

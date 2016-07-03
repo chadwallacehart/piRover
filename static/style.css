@@ -6,78 +6,58 @@ video {
     display: block
 }
 
-.btn-link{
-    color: red;
-    /*font-size: x-large;*/
-}
 
 td{
     font-size: large;
     /*vertical-align: bottom;*/
 }
 
+
+/*Bootstrap adjustments*/
+
+.list-group {
+    list-style: decimal inside;
+}
+
+.list-group-item {
+    display: list-item;
+}
+
+.form, .form-control {
+    width:auto;
+    display:inline-block;
+}
+
+.input {
+    margin-left: 10px;
+    margin-right: 5px;
+}
+
+/*To Do: fix these class names**/
+
+.cmdRow {
+    font-size: medium;
+}
+.cmdRow:nth-of-type(odd) {
+    background: #e0e0e0;
+}
+.cmdRow:nth-of-type(even) {
+    background: #fdfdfd;
+}
 .cmdTime {
-    width: 50px;
+    width: 40px;
+}
+.cmd{
+    margin-right: 20px;
+}
+.rowNum{
+    margin-right: 20px;
 }
 
-
-/*source: http://codepen.io/koobitor/pen/rjyon *
-.numpad {
-    margin: 0;
-    padding: 0;
-    position: absolute;
-    bottom: 0;
-    width: 160px;
+.del{
+    cursor: pointer;
 }
-
-.numpad li {
-    font-size: 16px;
-    float: left;
-    list-style: none;
-    text-align: center;
-    height: 40px;
-    padding-top: 10px;
-    width: 33.33%;
-    -webkit-font-smoothing: antialiased;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-
-    border: grey;
+.fa-times-circle{
+    color: red;
+    font-size: x-large;
 }
-*/
-
-.numpad {
-    margin: 0;
-    padding: 5px;
-    position: absolute;
-    bottom: 0;
-    width: 120px;
-    height: 120px;
-}
-
-.numpad button {
-    font-size: 16px;
-    float: left;
-    text-align: center;
-    /*padding-top: 10px;*/
-    height: 33.33%;
-    width: 33.33%;
-    -webkit-font-smoothing: antialiased;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-
-.popover{
-    width: 120px;
-    height: 120px;
-    align-content: center;
-}
-
