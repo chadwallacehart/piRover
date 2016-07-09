@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Raspberry Pi Rover Gamepad Controller</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script src="jquery.touchSwipe.js"></script>
+</head>
+<style>
+    /*    html{
+            min-height:100%;
+            position:relative;
+        }
+        body{
+            height: 100%;
+        }*/
+    div {
+        height: 100vh;
+        width: 200px;
+        text-align: center;
+        line-height: 100vh;
+        background-color: lightblue;
+        font-size: larger;
+    }
+    #status {
+        text-align: center;
+        line-height: 100vh;
+        width: 100vw;
+        font-size: larger;
+        position: absolute;
+        z-index: -1;
+    }
+
+</style>
+
+<body>
+
+<div class="lever pull-left" id="left">touch me
+    </div>
+<p id="status">status messages</p>
+<div class="lever pull-right" id="right">touch me
+</div>
+
+<script>
+
+
+//failed attempt from a midi player
+
+    lever = document.getElementById("left");
+
+    //https://github.com/cwilso/midi-synth/blob/d6d2e2b454ffa0cafcf2f0174693ffd065cb5a4a/js/ui.js
+
+    lever.addEventListener('touchstart', touchstart);
+    lever.addEventListener('touchmove', touchmove);
+    lever.addEventListener('touchend', touchend);
+
+
+
+    function touchstart( ev ) {
+        for (var i=0; i<ev.targetTouches.length; i++) {
+            var touch = ev.targetTouches[0];
+            var element = touch.target;
+
+            element.text("moving");
+            console.log( "touchstart: id: " + element.id );
+            $('#status').text("start on " + element.id);
+
+        }
+        ev.preventDefault();
+    }
+
+    //https://github.com/cwilso/midi-synth/blob/d6d2e2b454ffa0cafcf2f0174693ffd065cb5a4a/js/synth.js
+    function touchmove( ev ) {
+        for (var i=0; i<ev.targetTouches.length; i++) {
+            var touch = ev.targetTouches[0];
+            var element = touch.target;
+
+            element.text("moving");
+            console.log( "touchmove: id: " + element.id  );
+            $('#status').text("moving on " + element.id);
+        }
+        ev.preventDefault();
+    }
+
+    function touchend( ev ) {
+        console.log( "touchend: id: " + ev.target.id );
+        var element = touch.target;
+        element.text("touch me");
+        $('#status').text("ending on " + element.id);
+
+        lever = document.getElementsByClassName("lever");
+        ev.preventDefault();
+    }
+
+    function touchcancel( ev ) {
+        console.log( "touchcancel" );
+        var element = touch.target;
+        element.text("touch me");
+        $('#status').text("cancelling on " + element.id);
+        ev.preventDefault();
+    }
+
+//touchSwipe tests
+/*    $(document).ready(function () {
+        console.log("ready dude");
+
+        $(".test").swipe({
+            hold: function (event, target) {
+                $(this).text("hold");
+            },
+            tap: function(event, target){
+                $(this).text("tap");
+            },
+            longTap: function(event, target){
+                $(this).text("long tap");
+            },
+            swipe: function (event, direction) {
+                $(this).text(direction);
+                //console.log("You swiped " + direction);
+            },
+            swipeStatus: function (event, phase) {
+                if (phase == "cancel") {
+                    $(this).text("You didn't swipe far enough");
+                    //console.log("You didn't swipe far enough ");
+                }
+            },
+            threshold: 0,
+            longTapThreshold: 100,
+            fingers: 'all'
+        });
+
+    });*/
+
+    //prevent scrolling: http://www.html5rocks.com/en/mobile/touch/
+    document.body.addEventListener('touchmove', function(event) {
+        event.preventDefault();
+    }, false);
+
+</script>
+
+
+</body>
+</html>
