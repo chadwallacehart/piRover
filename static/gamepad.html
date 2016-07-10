@@ -12,134 +12,166 @@
     <script src="jquery.touchSwipe.js"></script>
 </head>
 <style>
-    /*    html{
-            min-height:100%;
-            position:relative;
-        }
-        body{
-            height: 100%;
-        }*/
-    div {
+
+    .container-fluid {
+        display: table;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+        width: 100vw;
         height: 100vh;
-        width: 200px;
-        text-align: center;
-        line-height: 100vh;
-        background-color: lightblue;
-        font-size: larger;
     }
+
+    .row {
+        display: table-row;
+    }
+
+    .trackarea {
+        height: 100%;
+        /*width: 200px;*/
+        display: table-cell;
+        text-align: center;
+        vertical-align: middle;
+        background-color: lightsteelblue;
+    }
+
     #status {
         text-align: center;
-        line-height: 100vh;
+        display: table-cell;
+        /*vertical-align: middle;
         width: 100vw;
-        font-size: larger;
         position: absolute;
-        z-index: -1;
+        z-index: -1;*/
+        background-color: lightgray;
+        vertical-align: middle;
+        display: inline-block;
+        height: 100%;
+    }
+
+    .direction {
+
+        line-height: 50vh;
+        font-size: larger;
+        text-align: center;
+        height: 50%;
+        width: 100%;
     }
 
 </style>
 
 <body>
+<div class="row">
+    <div class="container-fluid">
+        <div class="col-xs-3 col-sm-3 col-md-2 col-lg-2 trackarea pull-left" id="left">
+            Left
+        </div>
 
-<div class="lever pull-left" id="left">touch me
+        <div class="col-xs-6 col-sm-6 col-md-8 col-lg-8">
+            <div id="stats" class="text-center">status messages</div>
+        </div>
+
+        <div class="col-xs-3 col-sm-3 col-md-2 col-lg-2 trackarea pull-right" id="right">
+            Right
+        </div>
     </div>
-<p id="status">status messages</p>
-<div class="lever pull-right" id="right">touch me
 </div>
+
 
 <script>
 
-
-//failed attempt from a midi player
-
-    lever = document.getElementById("left");
-
-    //https://github.com/cwilso/midi-synth/blob/d6d2e2b454ffa0cafcf2f0174693ffd065cb5a4a/js/ui.js
-
-    lever.addEventListener('touchstart', touchstart);
-    lever.addEventListener('touchmove', touchmove);
-    lever.addEventListener('touchend', touchend);
-
-
-
-    function touchstart( ev ) {
-        for (var i=0; i<ev.targetTouches.length; i++) {
-            var touch = ev.targetTouches[0];
-            var element = touch.target;
-
-            element.text("moving");
-            console.log( "touchstart: id: " + element.id );
-            $('#status').text("start on " + element.id);
-
-        }
-        ev.preventDefault();
-    }
-
-    //https://github.com/cwilso/midi-synth/blob/d6d2e2b454ffa0cafcf2f0174693ffd065cb5a4a/js/synth.js
-    function touchmove( ev ) {
-        for (var i=0; i<ev.targetTouches.length; i++) {
-            var touch = ev.targetTouches[0];
-            var element = touch.target;
-
-            element.text("moving");
-            console.log( "touchmove: id: " + element.id  );
-            $('#status').text("moving on " + element.id);
-        }
-        ev.preventDefault();
-    }
-
-    function touchend( ev ) {
-        console.log( "touchend: id: " + ev.target.id );
-        var element = touch.target;
-        element.text("touch me");
-        $('#status').text("ending on " + element.id);
-
-        lever = document.getElementsByClassName("lever");
-        ev.preventDefault();
-    }
-
-    function touchcancel( ev ) {
-        console.log( "touchcancel" );
-        var element = touch.target;
-        element.text("touch me");
-        $('#status').text("cancelling on " + element.id);
-        ev.preventDefault();
-    }
-
-//touchSwipe tests
-/*    $(document).ready(function () {
-        console.log("ready dude");
-
-        $(".test").swipe({
-            hold: function (event, target) {
-                $(this).text("hold");
-            },
-            tap: function(event, target){
-                $(this).text("tap");
-            },
-            longTap: function(event, target){
-                $(this).text("long tap");
-            },
-            swipe: function (event, direction) {
-                $(this).text(direction);
-                //console.log("You swiped " + direction);
-            },
-            swipeStatus: function (event, phase) {
-                if (phase == "cancel") {
-                    $(this).text("You didn't swipe far enough");
-                    //console.log("You didn't swipe far enough ");
-                }
-            },
-            threshold: 0,
-            longTapThreshold: 100,
-            fingers: 'all'
-        });
-
-    });*/
-
     //prevent scrolling: http://www.html5rocks.com/en/mobile/touch/
-    document.body.addEventListener('touchmove', function(event) {
+    document.body.addEventListener('touchmove', function (event) {
         event.preventDefault();
     }, false);
+
+
+    //Handle touch events
+    $(".trackarea").bind("touchstart", function (event) {
+        $(this).text("moving");
+        var e = event.originalEvent.touches[0];
+        //$('#stats').text($(this)[0].id + ": " + e.pageX.toFixed(0) + "," + e.pageY.toFixed(0));
+        var yPct = ( -e.pageY / $(this).height() + 0.50).toFixed(2);
+        padControl($(this)[0].id, yPct);
+
+
+    });
+    $(".trackarea").bind("touchmove", function (event) {
+        var e = event.originalEvent.touches[0];
+        var yPct = ( -e.pageY / $(this).height() + 0.50).toFixed(2);
+        padControl($(this)[0].id, yPct);
+    });
+    $(".trackarea").bind("touchend", function (event) {
+
+        $(this).text("touch me");
+        var e = event.originalEvent.changedTouches[0];
+        //console.log(e.target.id);
+        padStop(e.target.id)
+    });
+
+
+    //setup motion control events
+    var lastPosition = {
+        left: {y: 0, moving: false, forward: null},
+        right: {y: 0, moving: false, forward: null}
+    };
+
+    function padControl(side, y) {
+        switch (side) {
+            case "left":
+                //console.log("left: " + y);
+                lastPosition.left.forward = y > 0;
+                lastPosition.left.moving = true;
+                lastPosition.left.y = y;
+                break;
+            case "right":
+                //console.log("right: " + y);
+                lastPosition.right.forward = y > 0;
+                lastPosition.right.moving = true;
+                lastPosition.right.y = y;
+                break;
+            default:
+                console.log("Error: missing side or coordinate");
+        }
+
+    }
+
+    function padStop(side) {
+        switch (side) {
+            case "left":
+                console.log("left stopped");
+                lastPosition.left.y = 0;
+                lastPosition.left.moving = false;
+                break;
+            case "right":
+                console.log("right stopped");
+                lastPosition.right.y = 0;
+                lastPosition.right.moving = false;
+                break;
+            default:
+                console.log("Error: missing side");
+        }
+
+    }
+
+
+    setInterval(
+            function () {
+
+                var text = "";
+                if (lastPosition.left.moving) {
+                    text += lastPosition.left.forward ? "LF" : "LB";
+                }
+
+                if (lastPosition.right.moving) {
+                    text += text.length > 0 ? " : " : "";
+                    text += lastPosition.right.forward ? "RF" : "RB";
+                }
+                if (!(lastPosition.left.moving && lastPosition.right.moving)) {
+                    $('#stats').text("not moving");
+                }
+                $('#stats').text(text);
+                //console.log(text);
+            }, 100);
+
 
 </script>
 
