@@ -34,16 +34,14 @@
         background-color: lightsteelblue;
     }
 
-    #status {
+    #status, #curTouch {
         text-align: center;
-        display: table-cell;
+        /*display: table-cell;*/
         /*vertical-align: middle;
         width: 100vw;
         position: absolute;
         z-index: -1;*/
-        background-color: lightgray;
         vertical-align: middle;
-        display: inline-block;
         height: 100%;
     }
 
@@ -59,53 +57,119 @@
 </style>
 
 <body>
-<div class="row">
-    <div class="container-fluid">
-        <div class="col-xs-3 col-sm-3 col-md-2 col-lg-2 trackarea pull-left" id="left">
-            Left
-        </div>
+<div class="container-fluid">
+    <div class="col-xs-3 col-sm-3 col-md-2 col-lg-2 trackarea pull-left" id="left">
+        Left
+    </div>
 
-        <div class="col-xs-6 col-sm-6 col-md-8 col-lg-8">
-            <div id="stats" class="text-center">status messages</div>
-        </div>
+    <div class="col-xs-6 col-sm-6 col-md-8 col-lg-8">
+        <div id="stats" class="text-center">status messages</div>
+        <div id="lastTouch" class="text-center"></div>
+    </div>
 
-        <div class="col-xs-3 col-sm-3 col-md-2 col-lg-2 trackarea pull-right" id="right">
-            Right
-        </div>
+    <div class="col-xs-3 col-sm-3 col-md-2 col-lg-2 trackarea pull-right" id="right">
+        Right
     </div>
 </div>
 
 
 <script>
 
-    //prevent scrolling: http://www.html5rocks.com/en/mobile/touch/
-    document.body.addEventListener('touchmove', function (event) {
-        event.preventDefault();
-    }, false);
+    var socket = io();
+    socket.on('init', function (data) {
+        console.log(data);
+    });
 
+    var lastTouchedButton;
 
     //Handle touch events
+    //Helpful resource: http://www.aaronbell.com/mobile-touch-controls-from-scratch/
     $(".trackarea").bind("touchstart", function (event) {
-        $(this).text("moving");
+        $(this).text("touch");
+
         var e = event.originalEvent.touches[0];
-        //$('#stats').text($(this)[0].id + ": " + e.pageX.toFixed(0) + "," + e.pageY.toFixed(0));
+        var button = $(this)[0].id;
         var yPct = ( -e.pageY / $(this).height() + 0.50).toFixed(2);
-        padControl($(this)[0].id, yPct);
-
-
+        padControl(button, yPct);
+        lastTouchedButton = button;
     });
+
     $(".trackarea").bind("touchmove", function (event) {
+        event.preventDefault();
+        $(this).text("moving");
+
+
+        //console.log(event.originalEvent.touches);
+
         var e = event.originalEvent.touches[0];
+
+        var button = $(this)[0].id;
+
+        var elementsBeingTouched = getIdOfTouchedElement(event.originalEvent);
+
+        if (elementsBeingTouched[0] === button) {
+            var yPct = ( -e.pageY / $(this).height() + 0.50).toFixed(2);
+            padControl(button, yPct);
+            lastTouchedButton = button;
+
+        }
+        else if (elementsBeingTouched[0] in ['left', 'right']) {
+            var yPct = ( -e.pageY / $(this).height() + 0.50).toFixed(2);
+            padStop(button);
+            padControl(elementsBeingTouched[0], yPct);
+            lastTouchedButton = elementsBeingTouched[0];
+
+
+        }
+        //off controls so reset
+        else {
+            if (lastPosition == 'left') {
+                lastPosition.left.moving = false;
+                lastPosition.left.y = 0;
+                lastPosition.left.forward = null;
+            }
+
+            if (lastPosition == 'right') {
+                lastPosition.right.moving = false;
+                lastPosition.right.y = 0;
+                lastPosition.right.forward = null;
+            }
+
+            lastTouchedButton = null;
+        }
+
+
         var yPct = ( -e.pageY / $(this).height() + 0.50).toFixed(2);
-        padControl($(this)[0].id, yPct);
+        padControl(button, yPct);
+        lastTouchedButton = button;
+
     });
     $(".trackarea").bind("touchend", function (event) {
 
         $(this).text("touch me");
+
         var e = event.originalEvent.changedTouches[0];
         //console.log(e.target.id);
         padStop(e.target.id)
     });
+
+
+    //source: https://github.com/air/encounter/blob/master/js/Touch.js
+    var getIdOfTouchedElement = function (touchEvent) {
+        var ids = [];
+        for (var i in touchEvent.changedTouches) {
+            var touch = touchEvent.changedTouches[i];
+            var element = document.elementFromPoint(touch.clientX, touch.clientY);
+            // this can return null
+            if (element !== null && 'id' in element) {
+                ids.push(element.id);
+            }
+            else {
+                //return null;
+            }
+        }
+        return ids;
+    };
 
 
     //setup motion control events
@@ -121,15 +185,31 @@
                 lastPosition.left.forward = y > 0;
                 lastPosition.left.moving = true;
                 lastPosition.left.y = y;
+
+                if (lastPosition.left.forward) {
+                    socket.emit('gamepad', {'control': 'lfOn'})
+                } else {
+                    socket.emit('gamepad', {'control': 'lbOn'});
+                }
+
                 break;
             case "right":
                 //console.log("right: " + y);
                 lastPosition.right.forward = y > 0;
                 lastPosition.right.moving = true;
                 lastPosition.right.y = y;
+
+                if (lastPosition.right.forward) {
+                    socket.emit('gamepad', {'control': 'rfOn'})
+                } else {
+                    socket.emit('gamepad', {'control': 'rbOn'});
+                }
+                break;
+            case "":
                 break;
             default:
-                console.log("Error: missing side or coordinate");
+                //console.log("Error: missing side or coordinate");
+                console.log("missing side: " + side);
         }
 
     }
@@ -140,11 +220,27 @@
                 console.log("left stopped");
                 lastPosition.left.y = 0;
                 lastPosition.left.moving = false;
+
+                if (lastPosition.left.forward) {
+                    socket.emit('gamepad', {'control': 'lfOff'})
+                } else {
+                    socket.emit('gamepad', {'control': 'lbOff'});
+                }
+
+
                 break;
             case "right":
                 console.log("right stopped");
                 lastPosition.right.y = 0;
                 lastPosition.right.moving = false;
+
+                if (lastPosition.right.forward) {
+                    socket.emit('gamepad', {'control': 'rfOff'})
+                } else {
+                    socket.emit('gamepad', {'control': 'rbOff'});
+                }
+
+
                 break;
             default:
                 console.log("Error: missing side");
@@ -152,23 +248,33 @@
 
     }
 
+    //display the current movement status
+
+    var statsText = "";
 
     setInterval(
             function () {
 
-                var text = "";
+                //$('#lastTouch').text("last: " + lastTouchedButton);
+
                 if (lastPosition.left.moving) {
-                    text += lastPosition.left.forward ? "LF" : "LB";
+                    statsText += lastPosition.left.forward ? "LF" : "LB";
                 }
 
                 if (lastPosition.right.moving) {
-                    text += text.length > 0 ? " : " : "";
-                    text += lastPosition.right.forward ? "RF" : "RB";
+                    statsText += statsText.length > 0 ? " : " : "";
+                    statsText += lastPosition.right.forward ? "RF" : "RB";
                 }
-                if (!(lastPosition.left.moving && lastPosition.right.moving)) {
+                if (!lastPosition.left.moving && !lastPosition.right.moving) {
                     $('#stats').text("not moving");
+                    statsText = "";
                 }
-                $('#stats').text(text);
+                if (statsText != "") {
+                    $('#stats').text(statsText);
+                    statsText = "";
+
+                }
+
                 //console.log(text);
             }, 100);
 

@@ -4,10 +4,10 @@
 //var router = require('tiny-router'),
 var express = require('express'),
     app = express(),
-    server = require('http').createServer(app);
-fs = require('fs'),
-    io = require('socket.io')(server);
-var five = require("johnny-five"),
+    server = require('http').createServer(app),
+    fs = require('fs'),
+    io = require('socket.io')(server),
+    five = require("johnny-five"),
     Raspi = require("raspi-io");
 
 var Audio = require('aplay');
@@ -24,7 +24,7 @@ board.on("ready", function () {
     rb = new five.Pin("P1-13");     //RB        | PIN13 | GPIO23 | red wire
     lf = new five.Pin("P1-15");     //LF        | PIN15 | GPIO22 | white wire
     lb = new five.Pin("P1-16");     //LB        | PIN16 | GPIO23 | yellow wire
-    sound = new five.Pin("P1-18");  //sound     | PIN18 | GPIO24 | yellow wire
+    //sound = new five.Pin("P1-18");  //sound     | PIN18 | GPIO24 | yellow wire
     disc = new five.Pin("P1-22");   //disc      | PIN20 | GPIO25 | white wire
 
     //initialize all the pins
@@ -32,7 +32,7 @@ board.on("ready", function () {
     rb.low();
     lf.low();
     lb.low();
-    sound.high();
+    //sound.high();
     disc.low();
 
     //hello world
@@ -45,7 +45,7 @@ board.on("ready", function () {
  .use('fs', fs);
  */
 // Routing
-app.use(express.static(__dirname + '/static'))
+app.use(express.static(__dirname + '/static'));
 
 
 //REST Commands
@@ -193,7 +193,22 @@ app
                 disc.low();
             }
             , t * 1000 + 5000); //give the disc launcher 5 seconds to spin up
+    })
+
+    .get('/off', function (req, res) {
+        res.send("Turning everything off");
+
+        //re-initialize all the pins
+        rf.low();
+        rb.low();
+        lf.low();
+        lb.low();
+        //sound.high();
+        disc.low();
+        console.log("Returning to off state");
     });
+
+
 
 
 //get the list of sound files
@@ -232,7 +247,116 @@ io.on('connection', function (socket) {
         }
     });
 
-//Commmand handler
+    socket.on('touchui', function (data){
+        gameControl(data);
+    });
+
+    var motorState = {rfOn: false, rbOn: false, lfOn: false, lbOn: false};
+
+
+    function gameControl(command){
+        //console.log(command.control);
+        //console.log(motorState);
+        switch(command.control){
+            case 'rfOn':
+                //if right going backward, turn it off
+                if (motorState.rbOn == true){
+                    motorState.rbOn = false;
+                    rb.low();
+                    console.log("rb to rf");
+                }
+                //if rf isn't moving, turn it on
+                if (motorState.rfOn == false){
+                    motorState.rfOn = true;
+                    rf.high();
+                    console.log("rf to high");
+                }
+
+                break;
+            case 'rfOff':
+                if (motorState.rfOn == true){
+                    motorState.rfOn = false;
+                    rf.low();
+                    console.log("rf to low");
+                }
+                break;
+
+            case 'rbOn':
+                //if right going forward, turn it off
+                if (motorState.rfOn == true){
+                    motorState.rfOn = false;
+                    rf.low();
+                    console.log("rf to rb");
+                }
+                //if rb isn't moving, turn it on
+                if (motorState.rbOn == false) {
+                    motorState.rbOn = true;
+                    rb.high();
+                    console.log("rb to high");
+                }
+                break;
+            case 'rbOff':
+                if (motorState.rbOn == true){
+                    motorState.rbOn = false;
+                    rb.low();
+                    console.log("rb to low");
+                }
+                break;
+
+            case 'lfOn':
+                //if left going backward, turn it off
+                if (motorState.lbOn == true){
+                    motorState.lbOn = false;
+                    lb.low();
+                    console.log("rb to rf");
+                }
+                //if lb isn't moving, turn it on
+                if (motorState.lfOn == false){
+                    motorState.lfOn = true;
+                    lf.high();
+                    console.log("lb to high");
+                }
+                break;
+            case 'lfOff':
+                if (motorState.lfOn == true){
+                    motorState.lfOn = false;
+                    lf.low();
+                    console.log("lf to low");
+                }
+                break;
+
+            case 'lbOn':
+                //if left going forward, turn it off
+                if (motorState.lfOn == true){
+                    motorState.lfOn = false;
+                    lf.low();
+                    console.log("changing rf to rb");
+                }
+                if (motorState.lbOn == false){
+                    motorState.lbOn = true;
+                    lb.high();
+                    console.log("lb to high");
+                }
+                break;
+            case 'lbOff':
+                if (motorState.lbOn == true){
+                    motorState.lbOn = false;
+                    lb.low();
+                    console.log("lb to low");
+                }
+                break;
+            case 'heartbeat':
+                console.log('heartbeat');
+                break;
+            default:
+                console.log("unrecognized control message: " + command.control);
+
+        }
+    }
+
+
+
+//Commmand handler for GUI programming
     function action(command) {
         console.log(command);
 
