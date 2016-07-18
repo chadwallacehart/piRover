@@ -3,7 +3,7 @@
 <head>
 <meta charset=utf-8>
 <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0" /> 
-<title></title>
+<title>Touch UI tests</title>
 <style type="text/css"> 
 	
 	* {
@@ -36,6 +36,24 @@
 <script src="Vector2.js"></script>
 <script>
 
+/*
+Most of this is from https://github.com/sebleedelisle/JSTouchController/
+LICENSE:
+ multi-touch game controller demo. for more information http://sebleedelisle.com/2011/04/multi-touch-game-controller-in-javascripthtml5-for-ipad
+
+ Copyright (c)2010-2011, Seb Lee-Delisle, sebleedelisle.com
+ All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+ * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+ * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+*/
 var canvas,
 		c, // c is the canvas' context 2D
 		container,
@@ -44,7 +62,12 @@ var canvas,
 		leftTouchID = -1,
 		leftTouchPos = new Vector2(0,0),
 		leftTouchStartPos = new Vector2(0,0),
-		leftVector = new Vector2(0,0);
+		leftVector = new Vector2(0,0),
+
+		rightTouchID = -1,
+		rightTouchPos = new Vector2(0,0),
+		rightTouchStartPos = new Vector2(0,0),
+		rightVector = new Vector2(0,0);
 
 setupCanvas();
 
@@ -53,8 +76,10 @@ var mouseX, mouseY,
 	touchable = 'createTouch' in document,
 	touches = []; // array of touch vectors
 
-setInterval(draw, 1000/35); 
+var message = {left: "left message",
+				right: "right message"};
 
+setInterval(draw, 1000/35);
 
 if(touchable) {
 	canvas.addEventListener( 'touchstart', onTouchStart, false );
@@ -88,6 +113,17 @@ function draw() {
 	c.clearRect(0,0,canvas.width, canvas.height);
 
 
+	c.fillStyle = "grey";
+	c.font='16px Arial';
+
+	c.beginPath();
+	c.textAlign="end";
+	c.fillText(message.left, halfWidth-10, halfHeight);
+	c.beginPath();
+	c.textAlign="start";
+	c.fillText(message.right, halfWidth+10, halfHeight);
+
+
 
 	if(touchable) {
 
@@ -110,8 +146,27 @@ function draw() {
 				c.strokeStyle = "cyan";
 				c.arc(leftTouchPos.x, leftTouchPos.y, 40, 0,Math.PI*2, true);
 				c.stroke();
+			}
+			else if(touch.identifier == rightTouchID){
+				c.beginPath();
+				c.strokeStyle = "cyan";
+				c.lineWidth = 6;
+				c.arc(rightTouchStartPos.x, rightTouchStartPos.y, 40,0,Math.PI*2,true);
+				c.stroke();
+				c.beginPath();
+				c.strokeStyle = "cyan";
+				c.lineWidth = 2;
+				c.arc(rightTouchStartPos.x, rightTouchStartPos.y, 60,0,Math.PI*2,true);
+				c.stroke();
+				c.beginPath();
+				c.strokeStyle = "cyan";
+				c.arc(rightTouchPos.x, rightTouchPos.y, 40, 0,Math.PI*2, true);
+				c.stroke();
+			}
 
-			} else {
+			else {
+
+				c.font='10px Arial'; //chad
 
 				c.beginPath();
 				c.fillStyle = "white";
@@ -126,12 +181,11 @@ function draw() {
 		}
 	} else {
 
+		c.font='10px Arial'; //chad
 		c.fillStyle	 = "white";
 		c.fillText("mouse : "+mouseX+", "+mouseY, mouseX, mouseY);
 
 	}
-	c.fillText("hello", 0,0);
-	
 }
 
 /*	
@@ -160,19 +214,33 @@ function onTouchStart(e) {
 	for(var i = 0; i<e.changedTouches.length; i++){
 		var touch =e.changedTouches[i];
 		//console.log(leftTouchID + " "
+
 		if((leftTouchID<0) && (touch.clientX<halfWidth))
 		{
 			leftTouchID = touch.identifier;
 			leftTouchStartPos.reset(touch.clientX, touch.clientY);
 			leftTouchPos.copyFrom(leftTouchStartPos);
 			leftVector.reset(0,0);
-			continue;
-		} else {
+			//continue;
+
+
+
+		}
+		else if((rightTouchID<0) && (touch.clientX>halfWidth))
+		{
+			rightTouchID = touch.identifier;
+			rightTouchStartPos.reset(touch.clientX, touch.clientY);
+			rightTouchPos.copyFrom(leftTouchStartPos);
+			rightVector.reset(0,0);
+			//continue;
+		}
+		else {
 
 
 		}
 	}
 	touches = e.touches;
+	//message = "Left: " + leftTouchID + ", right:  " + rightTouchID; //chad
 }
  
 function onTouchMove(e) {
@@ -180,13 +248,52 @@ function onTouchMove(e) {
 	e.preventDefault();
 
 	for(var i = 0; i<e.changedTouches.length; i++){
+
 		var touch =e.changedTouches[i];
-		if(leftTouchID == touch.identifier)
-		{
+
+		if(leftTouchID == touch.identifier) {
+/*			var displacement = (leftTouchStartPos.y - touch.clientY)/ halfHeight;
+			console.log("Displacement: " + displacement);
+
+			if ( math.abs(displacement) < 0.10){
+				message.left = "hold";
+			}
+			else {
+*/
+				if (leftTouchStartPos.y - touch.clientY > 0) {
+					message.left = "forward"
+				}
+				else if (leftTouchStartPos.y - touch.clientY < 0) {
+					message.left = "backward"
+				}
+			//}
+
 			leftTouchPos.reset(touch.clientX, touch.clientY);
 			leftVector.copyFrom(leftTouchPos);
 			leftVector.minusEq(leftTouchStartPos);
-			break;
+		}
+
+		if(rightTouchID == touch.identifier) {
+/*			var displacement = (leftTouchStartPos.y - touch.clientY)/ halfHeight;
+			console.log("Displacement: " + displacement);
+
+			if (math.abs(displacement) < 0.10){
+				message.right = "hold";
+			}
+			else{
+			*/
+				if (rightTouchStartPos.y - touch.clientY > 0) {
+					message.right = "forward"
+				}
+				else if (rightTouchStartPos.y - touch.clientY < 0) {
+					message.right = "backward"
+				}
+			//}
+
+
+			rightTouchPos.reset(touch.clientX, touch.clientY);
+			rightVector.copyFrom(rightTouchPos);
+			rightVector.minusEq(rightTouchStartPos);
 		}
 	}
 
@@ -205,7 +312,14 @@ function onTouchEnd(e) {
 		{
 			leftTouchID = -1;
 			leftVector.reset(0,0);
-			break;
+			//break;
+		}
+
+		if(rightTouchID == touch.identifier)
+		{
+			rightTouchID = -1;
+			rightVector.reset(0,0);
+			//break;
 		}
 	}
    
@@ -228,8 +342,10 @@ function setupCanvas() {
 	canvas.width = window.innerWidth; 
 	canvas.height = window.innerHeight; 
 	document.body.appendChild( container );
-	container.appendChild(canvas);	
-	
+	container.appendChild(canvas);
+
+	resetCanvas();
+
 	c.strokeStyle = "#ffffff";
 	c.lineWidth =2;	
 }
