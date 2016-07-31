@@ -30,11 +30,19 @@
 	}
 </style>
 
-
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="Vector2.js"></script>
 </head>
 <body onload = "init()">
-<script src="Vector2.js"></script>
+
 <script>
+
+
+	var socket = io();
+	socket.on('init', function (data) {
+		console.log(data);
+	});
+
 
 /*
 Most of this is from https://github.com/sebleedelisle/JSTouchController/
@@ -261,10 +269,14 @@ function onTouchMove(e) {
 			else {
 */
 				if (leftTouchStartPos.y - touch.clientY > 0) {
-					message.left = "forward"
+					message.left = "forward";
+					console.log("left forward");
+					socket.emit('touchui', {'control': 'lfOn'});
 				}
 				else if (leftTouchStartPos.y - touch.clientY < 0) {
-					message.left = "backward"
+					message.left = "backward";
+					console.log("left backward");
+					socket.emit('touchui', {'control': 'lbOn'});
 				}
 			//}
 
@@ -283,10 +295,14 @@ function onTouchMove(e) {
 			else{
 			*/
 				if (rightTouchStartPos.y - touch.clientY > 0) {
-					message.right = "forward"
+					message.right = "forward";
+					console.log("right forward");
+					socket.emit('touchui', {'control': 'rfOn'});
 				}
 				else if (rightTouchStartPos.y - touch.clientY < 0) {
-					message.right = "backward"
+					message.right = "backward";
+					console.log("right backward");
+					socket.emit('touchui', {'control': 'rbOn'});
 				}
 			//}
 
@@ -312,6 +328,10 @@ function onTouchEnd(e) {
 		{
 			leftTouchID = -1;
 			leftVector.reset(0,0);
+			message.left = "off";
+			console.log("left off");
+			socket.emit('touchui', {'control': 'lfOff'});
+			socket.emit('touchui', {'control': 'lbOff'});
 			//break;
 		}
 
@@ -319,6 +339,10 @@ function onTouchEnd(e) {
 		{
 			rightTouchID = -1;
 			rightVector.reset(0,0);
+			message.right = "off";
+			console.log("right off");
+			socket.emit('touchui', {'control': 'rfOff'});
+			socket.emit('touchui', {'control': 'rbOff'});
 			//break;
 		}
 	}
