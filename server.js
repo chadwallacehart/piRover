@@ -17,11 +17,12 @@ var board = new five.Board({
 });
 
 var led, rf, rb, lf, lb, sound, disc;
+var ready = false;
 
 board.on("ready", function () {
     led = new five.Led("P1-40");    //LED       | PIN40 | GPIO21 | green wire
     rf = new five.Pin("P1-11");     //RF        | PIN11 | GPIO17 | green wire
-    rb = new five.Pin("P1-13");     //RB        | PIN13 | GPIO23 | red wire
+    rb = new five.Pin("P1-13");     //RB        | PIN13 | GPIO27 | red wire
     lf = new five.Pin("P1-15");     //LF        | PIN15 | GPIO22 | white wire
     lb = new five.Pin("P1-16");     //LB        | PIN16 | GPIO23 | yellow wire
     //sound = new five.Pin("P1-18");  //sound     | PIN18 | GPIO24 | yellow wire
@@ -37,6 +38,8 @@ board.on("ready", function () {
 
     //hello world
     led.blink();
+
+    ready = true;
 });
 
 /*
@@ -47,14 +50,31 @@ board.on("ready", function () {
 // Routing
 app.use(express.static(__dirname + '/static'));
 
+//added for CORS
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
 
 //REST Commands
 app
-    .get('/ping', function (req, res) {
+    .get('/ping', function (req, res, next) {
         res.send('pong');
         console.log('ping');
     })
 
+    .get('/status', function (req, res, next) {
+        if (ready){
+            res.send('ready');
+            //console.log('hardware ready');
+        }
+        else {
+            res.send('not ready');
+            //console.log('hardware not ready');
+
+        }
+    })
 
 
     //To Do: move thsi to a route
@@ -63,7 +83,7 @@ app
         console.log("rest");
     })
 
-    .get('/forward/:t', function (req, res) {
+    .get('/forward/:t', function (req, res, next) {
         var t = req.params.t;
         if (isNaN(t)) t = 1;
         res.send("Moving forward");
@@ -77,7 +97,7 @@ app
             , t * 1000);
     })
 
-    .get('/backward/:t', function (req, res) {
+    .get('/backward/:t', function (req, res, next) {
         var t = req.params.t;
         if (isNaN(t)) t = 1;
         res.send("Moving backward");
@@ -91,7 +111,7 @@ app
             , 1000);
     })
 
-    .get('/spinright/:t', function (req, res) {
+    .get('/spinright/:t', function (req, res, next) {
         var t = req.params.t;
         if (isNaN(t)) t = 1;
         res.send("Spinning right");
@@ -104,7 +124,7 @@ app
             }
             , 1000);
     })
-    .get('/spinleft/:t', function (req, res) {
+    .get('/spinleft/:t', function (req, res, next) {
         var t = req.params.t;
         if (isNaN(t)) t = 1;
         res.send("Spinning left");
@@ -118,7 +138,7 @@ app
             , 1000);
     })
 
-    .get('/rf/:t', function (req, res) {
+    .get('/rf/:t', function (req, res, next) {
         var t = req.params.t;
         if (isNaN(t)) t = 1;
         res.send("Toggling rf for " + t);
@@ -130,7 +150,7 @@ app
             , t * 1000);
     })
 
-    .get('/rb/:t', function (req, res) {
+    .get('/rb/:t', function (req, res, next) {
         var t = req.params.t;
         if (isNaN(t)) t = 1;
         res.send("Toggling rb for " + t);
@@ -142,7 +162,7 @@ app
             , t * 1000);
     })
 
-    .get('/lf/:t', function (req, res) {
+    .get('/lf/:t', function (req, res, next) {
         var t = req.params.t;
         if (isNaN(t)) t = 1;
         res.send("Toggling G3 for " + t);
@@ -154,7 +174,7 @@ app
             , t * 1000);
     })
 
-    .get('/lb/:t', function (req, res) {
+    .get('/lb/:t', function (req, res, next) {
         var t = req.params.t;
         if (isNaN(t)) t = 1;
         res.send("Toggling G4 for " + t);
@@ -168,7 +188,7 @@ app
             , t * 1000);
     })
 
-    .get('/sound/:t', function (req, res) {
+    .get('/sound/:t', function (req, res, next) {
         var t = req.params.t;
         if (isNaN(t)) t = 1;
         res.send("Toggling sound for " + t);
@@ -182,7 +202,7 @@ app
             , t * 1000);
     })
 
-    .get('/disc/:t', function (req, res) {
+    .get('/disc/:t', function (req, res, next) {
         var t = req.params.t;
         if (isNaN(t)) t = 1;
         res.send("Toggling disc launcher for " + t);
@@ -195,7 +215,7 @@ app
             , t * 1000 + 5000); //give the disc launcher 5 seconds to spin up
     })
 
-    .get('/off', function (req, res) {
+    .get('/off', function (req, res, next) {
         res.send("Turning everything off");
 
         //re-initialize all the pins
@@ -212,12 +232,14 @@ app
 
 
 //get the list of sound files
+//ToDo: fix the file reference and do a catch
 var sounds = [];
-fs.readdir('./sounds', function (err, items) {
+fs.readdir('/home/pi/dev/piRover/sounds', function (err, items) {
     for (var i = 0; i < items.length; i++) {
         sounds.push({name: items[i].substr(0, 8), file: './sounds/' + items[i]});
     }
 });
+
 
 //initialization sound
 var audio = new Audio();
@@ -233,6 +255,8 @@ audio.on('complete', function () {
 //ToDo: get a library to handle this like a route
 //Websocket commands
 io.on('connection', function (socket) {
+
+    console.log("new socket connection");
 
     //ToDo: just send the sound name instead of the whole object
     socket.emit('init', {'sounds': sounds});
@@ -295,6 +319,7 @@ io.on('connection', function (socket) {
                     console.log("rb to high");
                 }
                 break;
+
             case 'rbOff':
                 if (motorState.rbOn == true){
                     motorState.rbOn = false;
@@ -317,6 +342,7 @@ io.on('connection', function (socket) {
                     console.log("lb to high");
                 }
                 break;
+
             case 'lfOff':
                 if (motorState.lfOn == true){
                     motorState.lfOn = false;
@@ -359,6 +385,7 @@ io.on('connection', function (socket) {
 //Commmand handler for GUI programming
     function action(command) {
         console.log(command);
+
 
         if (command.sound) {
             var file = "";

@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>WebRTC Video Stream</title>
+    <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-<video id="remote-video" autoplay="autoplay"></video>
+<video id="remote-video" autoplay="autoplay" style="width:100%"></video>
 
 <script>
 
@@ -26,7 +27,7 @@
     var mediaConstraints = {
         optional: [],
         mandatory: {
-            OfferToReceiveAudio: false, //ToDo: hook up a microphone
+            OfferToReceiveAudio: true, //ToDo: hook up a microphone
             OfferToReceiveVideo: true
         }
     };
